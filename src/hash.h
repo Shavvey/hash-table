@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 typedef struct {
-  int value; 
+  char *key; 
+  // Each item can include other stuff here...
 } Item;
 
 /** Because we allow we open addressing, 
@@ -25,4 +26,4 @@ typedef struct {
 // API
 uint32_t hash(const char *data, size_t len);
 HashTable ht_new(const uint64_t NUMBUCKETS);
-Item *ht_lookup(const HashTable *ht, Item item);
+Item ht_lookup(const HashTable *ht, Item item);

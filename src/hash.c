@@ -1,5 +1,7 @@
 #include "hash.h"
 #include "common.h"
+#include <stdint.h>
+#include <string.h>
 
 #define FNV_OFFSET_BASIS 0x811C9DC5
 #define FNV_PRIME 0x01000193
@@ -39,4 +41,19 @@ HashTable ht_new(const uint64_t NUMBUCKETS) {
     exit(1);
   }
   return ht;
+}
+
+Item ht_lookup(const HashTable *ht, Item item) {
+  uint32_t h = hash(item.key, strlen(item.key));
+  uint32_t idx = mod(h, ht->NUMBUCKETS);
+  Entry entry = ht->items[idx];
+  if (entry.size == 1)
+    return entry.items[0];
+  for (size_t s = 0; s < entry.size; s += 1) {
+    if (strcmp(entry.items[s].key, item.key) == 0) {
+      return entry.items[s];
+    }
+  }
+  // return null item
+  return (Item){NULL};
 }
