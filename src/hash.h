@@ -23,6 +23,6 @@ typedef struct {
 } HashTable;
 
 // API
-uint64_t hash(char *data, size_t num_bytes, const uint64_t NUMBUCKETS);
+uint32_t hash(const char *data, size_t len);
 HashTable ht_new(const uint64_t NUMBUCKETS);
 Item *ht_lookup(const HashTable *ht, Item item);
