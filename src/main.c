@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int main() {
-  HashTable ht = ht_new(15);
+  HashTable ht = ht_new(30);
   ht_insert(&ht, (Item){.key = "Hello", .keylen = 5, .value = 3});
   ht_insert(&ht, (Item){.key = "XOR", .keylen = 3, .value = 10});
   // simulating collision

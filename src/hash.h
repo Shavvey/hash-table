@@ -9,16 +9,17 @@ typedef struct {
   int value;
 } Item;
 
-/** Because we allow we closed addressing, 
- * each entry is a alist of items, not just one item */
+/** Because we allow closed addressing, 
+ * each entry is a alist (from `common.h`) of items, 
+ * not just one item */
 typedef struct {
   size_t capacity;
   size_t size;
   Item *items;
 } Entry;
 
-/** HashTable data structure:
-* Implementation uses `common.h`, for an alist of entries*/
+/** HashTable data structure, 
+ * just a fixed array of table entries */
 typedef struct {
   const uint64_t NUMBUCKETS;
   Entry *entries;

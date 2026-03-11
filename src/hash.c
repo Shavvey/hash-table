@@ -6,6 +6,7 @@
 
 #define FNV_OFFSET_BASIS 0x811C9DC5
 #define FNV_PRIME 0x01000193
+#define BUCKET_CAP 1 << 29
 
 /** BASED_ON:
  * https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
@@ -13,7 +14,7 @@
 uint32_t hash(const char *data, size_t len) {
   // NOTE: register keyword is a compilation hint to keep this value in a reg
   register uint32_t hash = FNV_OFFSET_BASIS;
-  // Iterate accross pointer to bytes given
+  // Iterate across pointer to bytes given
   for (; len > 0; len -= 1) {
     hash *= FNV_PRIME;
     hash ^= data[len];
@@ -22,11 +23,13 @@ uint32_t hash(const char *data, size_t len) {
 }
 
 HashTable ht_new(const uint64_t NUMBUCKETS) {
-  // NOTE: Limit the size of NUMBUCKETS
-  if (NUMBUCKETS >= 1 << 31) {
-    eprintf(
-        "Number of entries in table should be less than 2^32 (4 million)\n");
-    exit(1);
+  // After some testing, I gave an arbitrary limit to the hash table,
+  // this will be fine for our purposes
+  if (NUMBUCKETS >= BUCKET_CAP) {
+    // I basically chose to limit bucket size to this because who the hell needs
+    // a 4MB hash table?? (2^28 entries works, but the calloc() call takes forever)
+    eprintf("Number of entries in table should be less than 2^29 entries\n");
+    exit(EXIT_FAILURE);
   }
   HashTable ht = (HashTable){
       .NUMBUCKETS = NUMBUCKETS,
@@ -34,6 +37,7 @@ HashTable ht_new(const uint64_t NUMBUCKETS) {
   };
   if (ht.entries == NULL) {
     eprintf("Failed to allocate hash table with %lu entries!", NUMBUCKETS);
+    exit(EXIT_FAILURE);
   }
   return ht;
 }
@@ -56,6 +60,12 @@ const Item *ht_lookup(const HashTable *ht, void *key, uint32_t keylen) {
 }
 
 void ht_insert(HashTable *ht, Item item) {
+  if (ht_lookup(ht, (char *)item.key, item.keylen) != NULL) {
+    wprintf("Key %.*s already exists in the hash table!\n", item.keylen,
+            (char *)item.key);
+    // Just create an early return instead of going ahead with the insertion
+    return;
+  }
   uint32_t h = hash((char *)item.key, item.keylen);
   uint32_t idx = h % ht->NUMBUCKETS;
   Entry *e = ht->entries + idx;
