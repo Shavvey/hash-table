@@ -46,8 +46,8 @@ const Item *ht_lookup(const HashTable *ht, void *key, uint32_t keylen) {
   if (entry.size == 1)
     return &entry.items[0];
   for (size_t s = 0; s < entry.size; s += 1) {
-    // NOTE: if key is allowed to be any data, we really should use strcmp
-    if (strncmp(entry.items[s].key, (char *)key, keylen) == 0) {
+    // Compare keys if we have multiple items mapped to the same entry
+    if (strncmp((char *)entry.items[s].key, (char *)key, keylen) == 0) {
       return &entry.items[s];
     }
   }
